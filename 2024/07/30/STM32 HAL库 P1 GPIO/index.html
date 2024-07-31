@@ -9,7 +9,7 @@
 
 <link rel="alternate" href="/atom.xml" title="S1LVER BLOG" type="application/atom+xml">
 <meta name="theme-color" content="#a1d0f6">
-<title>S1LVER BLOG</title>
+<title>Hello World - S1LVER BLOG</title>
 <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 <link rel="shortcut icon" href="/favicon.png">
 
@@ -31,13 +31,14 @@
     <article class="post">
     <header>
         
+            <h1>Hello World</h1>
+        
         <h2 class="headline">Jul 30 2024
         
         </h2>
     </header>
 </article>
-<section id="post-body"><p>title: STM32 HAL库 P1 GPIO<br>date: 2024-07-31<br>tags:</p>
-<h1 id="STM32-HAL库-P1-GPIO"><a href="#STM32-HAL库-P1-GPIO" class="headerlink" title="STM32 HAL库 P1 GPIO"></a>STM32 HAL库 P1 <strong>GPIO</strong></h1><p>[^太久没用stm32了，已经快不会用了，之前也没有做笔记什么，已经忘得差不多了，现在新开一个基于stm32f103c8t6单片机的stm32 HAL库的帖，记录一下自己学习历程，可以提升自己对单片机的理解并可以用于之后回顾用。]: </p>
+<section id="post-body"><h1 id="STM32-HAL库-P1-GPIO"><a href="#STM32-HAL库-P1-GPIO" class="headerlink" title="STM32 HAL库 P1 GPIO"></a>STM32 HAL库 P1 <strong>GPIO</strong></h1><p>[^太久没用stm32了，已经快不会用了，之前也没有做笔记什么，已经忘得差不多了，现在新开一个基于stm32f103c8t6单片机的stm32 HAL库的帖，记录一下自己学习历程，可以提升自己对单片机的理解并可以用于之后回顾用。]: </p>
 <h2 id="GPIO"><a href="#GPIO" class="headerlink" title="GPIO"></a>GPIO</h2><p>GPIO的八个工作模式：<br>（1）浮空输入（input floating）,作为GPIO的输入引脚，不使用上拉或下拉电阻。<br>（2）输入上拉（input pull-up），作为GPIO的输入引脚，使用内部上拉电阻，引脚外部无输入时读取的引脚输入电平为高电平。<br>（3）输入下拉（input pull-down），作为GPIO的输入引脚，使用内部下拉电阻，引脚外部无输入时读取的引脚输入电平为低电平。<br>（4）模拟（analog）输入，作为GPIO模拟引脚，用于ADC输入引脚或DAC输出引脚。<br>（5）开漏输出（output open-drain），如果不使用上拉或下拉电阻，开漏输出1时引脚为高阻态（相当于开路、不会输出任何电平），输出0时引脚为低电平，它们不能提供高电平，只能提供低电平或悬空状态，需要外接上拉电阻，才能实现输出高电平。<br>（6）推挽输出（output push-pull），如果不使用上拉或下拉电阻，推挽输出1时引脚为高电平，输出0时引脚为低电平。若需要增强引脚输出驱动能力，就可以使用上拉，例如，需要GPIO引脚输出高电平点LED时。<br>（7）推挽 复用输出（alternate function push-pull），当GPIO为复用IO时的推挽输出模式，一般用于外设功能，如I2C的SCL、SDA。<br>（8）开漏 复用输出（alternate function push-pull），当GPIO为复用IO时的开漏输出模式，一般用于外设功能，如TX1、MOSI、MISO.SCK.SS。</p>
 <p>注：<br>①所有未进行任何配置的GPIO引脚，在系统复位后处于输入浮空模式。<br>②推挽输出与开漏输出的区别<br>  推挽输出是一种主动驱动型输出。当输出为高电平时，推完输出器件会提供正电压来驱动负载；而当输出为低电平时，它会提供零电压或接近零电压来驱动负载。这种输出方式可以提供较高的驱动能力和较快的切换速度，适合直接连接到负载或需要驱动高电平信号的应用。<br>  开漏输出是一种被动驱动型输出。在高电平状态下，开漏输出器件不提供电压，相当于断开了输出端与电源之间的连接；而在低电平状态下，它会将输出端拉低，与地（GND）连接。为了使输出得到正确的电平，通常需要使用上拉电阻将输出端连接到正电源。这种输出方式可以实现多个设备的共享以及电平适配，适合需要进行电平转换、总线通信或多路输出的应用。<br>  总体而言，推完输出可以提供两个电平的输出，具有较高的驱动能力和切换速度，而开漏输出只提供低电平输出，需要使用上拉电阻实现正电平。选择哪种输出方式取决于具体应用需求和连接环境。<br>————————————————</p>
 <p>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/That_Assassin/article/details/132991517">https://blog.csdn.net/That_Assassin/article/details/132991517</a></p>
@@ -59,7 +60,7 @@
         </div>
         </a>
         <section id="sharing">
-            <a title="Share to Twitter" class="twitter" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=http://s1lverblog.com/2024/07/30/STM32%20HAL%E5%BA%93%20P1%20GPIO/ - (无题) @"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Twitter" class="twitter" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=http://s1lverblog.com/2024/07/30/STM32%20HAL%E5%BA%93%20P1%20GPIO/ - Hello World @"><span class="icon-twitter">tweet</span></a>
             <a title="Share to Facebook" class="facebook" href="#" onclick="
                 window.open(
                   'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
@@ -80,6 +81,8 @@
       var cmts={
         load:function cmts(){
           var gitment = new Gitment({
+          
+            id: "Hello World",
           
             owner: "",
             repo: "",
