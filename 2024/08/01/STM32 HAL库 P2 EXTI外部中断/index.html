@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+
+  <meta name="description" content="This blog is used for personal recording of some learning processes and notes.">
+
+
+<link rel="alternate" href="/atom.xml" title="S1LVER BLOG" type="application/atom+xml">
+<meta name="theme-color" content="#a1d0f6">
+<title>S1LVER BLOG</title>
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<link rel="shortcut icon" href="/favicon.png">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<nav class="main-nav">
+	
+	    <a href="/">← 主页</a>
+	
+	
+	    <a href="/about/">About</a>
+	
+	    <a href="/archives/">Archives</a>
+	
+	<a class="cta" href="/atom.xml" data-no-instant>订阅</a>
+</nav>
+
+<section id="wrapper">
+    <article class="post">
+    <header>
+        
+        <h2 class="headline">Aug 01 2024
+        
+        </h2>
+    </header>
+</article>
+<section id="post-body"><hr>
+<h2 id="title：STM32-HAL库-P2-EXTI外部中断"><a href="#title：STM32-HAL库-P2-EXTI外部中断" class="headerlink" title="title：STM32 HAL库 P2 EXTI外部中断"></a>title：STM32 HAL库 P2 EXTI外部中断</h2><h1 id="STM32-HAL库-P2-EXTI外部中断"><a href="#STM32-HAL库-P2-EXTI外部中断" class="headerlink" title="STM32 HAL库 P2 EXTI外部中断"></a>STM32 HAL库 P2 EXTI外部中断</h1><p>[^外部中断可以在程序运行的同时以高优先级打断主程序运行执行中断程序]: </p>
+<h2 id="时钟"><a href="#时钟" class="headerlink" title="时钟"></a>时钟</h2><blockquote>
+<p>[!IMPORTANT]</p>
+<p><strong>·</strong>STM32时钟系统主要的目的就是<strong>给相对独立的外设模块提供时钟</strong>，也是为了<strong>降低整个芯片的耗能</strong>。<br><strong>·</strong>系统时钟，是处理器运行时间基准（每一条机器指令一个时钟周期）<br><strong>·</strong>时钟是单片机运行的基础，时钟信号推动单片机内各个部分执行相应的指令<strong>。<br><strong>·</strong>一个单片机内提供多个不同的系统时钟，可以适应更多的应用场合</strong>。<br>·<strong>不同的功能模块会有不同的时钟上限，因此提供不同的时钟，也能在一个单片机内放置更多的功能模块</strong>。<br><strong>对不同模块的时钟增加开启和关闭功能，可以降低单片机的功耗</strong><br>·STM32为了低功耗，他将所有的外设时钟都设置为disable(不使能)，用到什么外设，只要打开对应外设的时钟就可以， 其他的没用到的可以还是disable(不使能)，这样耗能就会减少。  这就是为什么<strong>不管你配置什么功能都需要先打开对应的时钟</strong>的原因</p>
+<p>详情可转至这篇文章，讲的很清楚<a target="_blank" rel="noopener" href="https://blog.csdn.net/as480133937/article/details/98845509">【STM32】系统时钟RCC详解(超详细，超全面)_rcc时钟-CSDN博客</a><img src="https://i-blog.csdnimg.cn/blog_migrate/c70c141b505e8884a77a94b6ce45d45d.png" alt="img"></p>
+</blockquote>
+<h2 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">中断服务例程与回调函数</span><br><span class="line">EXTIx_IRQHandler()：EXTI中断服务例程（ISR）。这是由硬件自动调用的函数，当EXTI线路上的事件触发中断时，CPU会自动跳转到此函数执行。用户通常需要在该函数中调用HAL库提供的处理函数，如HAL_GPIO_EXTI_IRQHandler()，以进一步处理中断。</span><br><span class="line">HAL_GPIO_EXTI_Callback()：EXTI中断回调函数。用户可以在此函数中编写自定义的中断处理逻辑。需要注意的是，这个函数是弱定义的（weak），用户可以通过重定义该函数来自定义中断处理逻辑。当EXTI中断发生时，HAL库会调用这个回调函数。</span><br></pre></td></tr></table></figure>
+
+<h2 id="任务1：key中断读取信号"><a href="#任务1：key中断读取信号" class="headerlink" title="任务1：key中断读取信号"></a>任务1：key中断读取信号</h2><h3 id="现象：按下key后LED发光"><a href="#现象：按下key后LED发光" class="headerlink" title="现象：按下key后LED发光"></a>现象：按下key后LED发光</h3><h3 id="引脚占用：PB12二极管负极，PB13二极管正级，PC13按键，按键另一端接3-3v"><a href="#引脚占用：PB12二极管负极，PB13二极管正级，PC13按键，按键另一端接3-3v" class="headerlink" title="引脚占用：PB12二极管负极，PB13二极管正级，PC13按键，按键另一端接3.3v"></a>引脚占用：PB12二极管负极，PB13二极管正级，PC13按键，按键另一端接3.3v</h3><h3 id="除去初始化核心代码："><a href="#除去初始化核心代码：" class="headerlink" title="除去初始化核心代码："></a>除去初始化核心代码：</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">void EXTI15_10_IRQHandler(void)</span><br><span class="line">&#123;</span><br><span class="line">  /* USER CODE BEGIN EXTI15_10_IRQn 0 */</span><br><span class="line">		HAL_Delay(10);</span><br><span class="line">		if(HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin));</span><br><span class="line">	  &#123;HAL_GPIO_WritePin(LEDP_GPIO_Port, LEDP_Pin, GPIO_PIN_RESET);</span><br><span class="line">	  HAL_GPIO_WritePin(LEDN_GPIO_Port, LEDN_Pin, GPIO_PIN_SET);</span><br><span class="line">	  &#125;</span><br><span class="line">  /* USER CODE END EXTI15_10_IRQn 0 */</span><br><span class="line">  HAL_GPIO_EXTI_IRQHandler(KEY_Pin);</span><br><span class="line">  /* USER CODE BEGIN EXTI15_10_IRQn 1 */</span><br><span class="line"></span><br><span class="line">  /* USER CODE END EXTI15_10_IRQn 1 */</span><br><span class="line">&#125;</span><br><span class="line">\\主函数空，默认初始化led熄灭</span><br><span class="line">\\函数在stm32f1xx_it.c中</span><br></pre></td></tr></table></figure>
+
+<h2 id="任务2：led周期闪烁"><a href="#任务2：led周期闪烁" class="headerlink" title="任务2：led周期闪烁"></a>任务2：led周期闪烁</h2><h3 id="现象：按下按键后，LED产生周期闪烁效果"><a href="#现象：按下按键后，LED产生周期闪烁效果" class="headerlink" title="现象：按下按键后，LED产生周期闪烁效果"></a>现象：按下按键后，LED产生周期闪烁效果</h3><h3 id="除去初始化核心代码：-1"><a href="#除去初始化核心代码：-1" class="headerlink" title="除去初始化核心代码："></a>除去初始化核心代码：</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">void EXTI15_10_IRQHandler(void)</span><br><span class="line">&#123;</span><br><span class="line">  /* USER CODE BEGIN EXTI15_10_IRQn 0 */</span><br><span class="line">		HAL_Delay(10);</span><br><span class="line">		if(HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin));</span><br><span class="line">	  &#123;</span><br><span class="line">			while(1)</span><br><span class="line">			&#123;</span><br><span class="line">				HAL_GPIO_WritePin(LEDP_GPIO_Port, LEDP_Pin, GPIO_PIN_RESET);</span><br><span class="line">				HAL_GPIO_WritePin(LEDN_GPIO_Port, LEDN_Pin, GPIO_PIN_SET);</span><br><span class="line">				HAL_Delay(500);</span><br><span class="line">				HAL_GPIO_WritePin(LEDP_GPIO_Port, LEDP_Pin, GPIO_PIN_SET);</span><br><span class="line">				HAL_GPIO_WritePin(LEDN_GPIO_Port, LEDN_Pin, GPIO_PIN_RESET);</span><br><span class="line">				HAL_Delay(500);</span><br><span class="line">			&#125;</span><br><span class="line">	  &#125;</span><br><span class="line">  /* USER CODE END EXTI15_10_IRQn 0 */</span><br><span class="line">  HAL_GPIO_EXTI_IRQHandler(KEY_Pin);</span><br><span class="line">  /* USER CODE BEGIN EXTI15_10_IRQn 1 */</span><br><span class="line"></span><br><span class="line">  /* USER CODE END EXTI15_10_IRQn 1 */</span><br><span class="line">&#125;</span><br><span class="line">\\主函数空，默认初始化led熄灭</span><br><span class="line">\\函数在stm32f1xx_it.c中</span><br></pre></td></tr></table></figure>
+
+
+
+</section>
+    
+
+    <footer id="post-meta" class="clearfix">
+        <a href="/about/">
+        <img class="avatar" src="/images/avatar.png">
+        <div>
+            <span class="dark">S1LVER BLOG</span>
+            <span>Pursue excellence</span>
+        </div>
+        </a>
+        <section id="sharing">
+            <a title="Share to Twitter" class="twitter" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=http://s1lverblog.com/2024/08/01/STM32%20HAL%E5%BA%93%20P2%20EXTI%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/ - (无题) @"><span class="icon-twitter">tweet</span></a>
+            <a title="Share to Facebook" class="facebook" href="#" onclick="
+                window.open(
+                  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+                  'facebook-share-dialog',
+                  'width=626,height=436');
+                return false;"><span class="icon-facebook-sign">Share</span>
+            </a>
+        </section>
+    </footer>
+
+
+  <section id="comment">
+    <button class="btn" id="loadcmts" onclick="cmts.load();">加载评论</button>
+    <div id="gitment"></div>
+    <script src='/js/gitment.browser.js'></script>
+    <link rel="stylesheet" href=''>
+    <script>
+      var cmts={
+        load:function cmts(){
+          var gitment = new Gitment({
+          
+            owner: "",
+            repo: "",
+            oauth: {
+              client_id: "",
+              client_secret: "",
+            },
+          })
+          gitment.render('gitment');
+          var loadcmt = document.getElementById("loadcmts");
+          var imyourfather = loadcmt.parentNode;
+          imyourfather.removeChild(loadcmts)
+        }
+      }
+    </script>
+  </section>
+
+
+	<footer id="footer">
+	<div id="social">
+		<p class="small">©  S1LVER| Powered by Hexo & 
+			<a target="_blank" rel="noopener" href="https://github.com/F0r3at/Lights"> Lights</a>
+		</p>
+	</div>
+</footer>
+
+</section>
+
+	<script src="//cdnjs.loli.net/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script>
+	<script data-no-instant>
+		
+		InstantClick.init('mousedown');
+	</script>
+
+
+
